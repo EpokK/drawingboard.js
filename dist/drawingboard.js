@@ -79,6 +79,7 @@ DrawingBoard.Board.defaultOpts = {
 	controlsPosition: "top left",
 	color: "#000000",
 	size: 1,
+	eraserSize: 1,
 	background: "#fff",
 	eraserColor: "background",
 	webStorage: 'session',
@@ -104,6 +105,7 @@ DrawingBoard.Board.prototype = {
 		opts = $.extend({
 			color: this.opts.color,
 			size: this.opts.size,
+			eraserSize: this.opts.eraserSize,
 			webStorage: true,
 			history: true,
 			background: false
@@ -400,6 +402,12 @@ DrawingBoard.Board.prototype = {
 		newMode = newMode || 'pencil';
 
 		this.ev.unbind('board:startDrawing', $.proxy(this.fill, this));
+
+		if (newMode === 'eraser' && this.opts.eraserSize) {
+			this.ctx.lineWidth = this.opts.eraserSize;
+		} else {
+			this.ctx.lineWidth = this.opts.size;
+		}
 
 		if (this.opts.eraserColor === "transparent")
 			this.ctx.globalCompositeOperation = newMode === "eraser" ? "destination-out" : "source-over";
@@ -907,6 +915,10 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 		if (!tpl) return false;
 
 		this.val = this.board.opts.size;
+		this.opts.size = this.board.opts.size;
+
+		if(this.board.opts.eraserSize)
+			this.opts.eraserSize = this.board.opts.eraserSize;
 
 		this.$el.append( $( tpl ) );
 		this.$el.attr('data-drawing-board-type', this.opts.type);
